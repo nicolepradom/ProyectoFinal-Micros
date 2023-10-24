@@ -1,0 +1,342 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <stdbool.h>
+
+
+
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
+#define PosY 5
+#define PosX 5
+
+
+//BOOLEANO PARA DETERMINAR CUANDO TERMINAR EL PROGRAMA
+bool finalized = false;   
+
+//BOOLEANO PARA DETERMINAR ESPACIO VACIÓ EN LA MATRIZ
+bool empty = false;
+
+//BOOLEANO PARA SABER SI SE USA EL CAMPO AUXILIAR
+bool auxOc = false;
+
+//DEFINICIÓN DE VARIABLES AUXILIARES PARA COORDENADAS
+int corX;
+int corY;
+
+
+
+// Estructura para representar un objeto con color, posición x y posición y
+typedef struct {
+    char color;
+    int x;
+    int y;
+} carga;
+
+int azules = 0;
+int rojos = 0;
+int verdes = 0;
+
+//VARIABLE GLOBAL PARA ZONA DE AUXILIAR
+carga aux;
+
+
+
+//SE DEFINE LA MATRIZ OBJETIVO GLOBAL
+carga matrizObjetivo[PosY][PosX];
+
+//SE DEFINE LA MATRIZ ACTUAL GLOBAL
+carga matrizActual[PosY][PosX]; 
+
+
+
+
+//FUNCION PARA finalizar
+void finalize(){
+    finalized = true;
+}
+
+//FUNCION ESPERAR AL ENTER
+void waitEnter(){
+    printf("Presiona Enter para continuar...\n");
+    getchar();  // Captura el carácter ingresado
+    getchar();  // Captura el carácter de nueva línea
+}
+
+
+//GENERAR MATRIZ OBJETIVO DEMO
+void genMatrix (){
+     // Llena la matriz Objetivo con objetos con posiciones y colores aleatorios
+    for (int i = 0; i < PosY; i++) {
+        for (int j = 0; j < PosX; j++) {
+            matrizObjetivo[i][j].x = j;
+            matrizObjetivo[i][j].y = i;
+            
+            if (azules>0) {
+                matrizObjetivo[i][j].color = 'A';
+                azules = azules - 1;
+            } else if (rojos>0) {
+                matrizObjetivo[i][j].color = 'R';
+                rojos = rojos - 1;
+            } else if(verdes>0){
+                matrizObjetivo[i][j].color = 'V';
+                verdes = verdes - 1;
+            }
+            else{
+                matrizObjetivo[i][j].color = 'O';
+            }
+        }
+    }
+}
+
+
+
+//FUNCION IMPRIMIR MATRIZ
+void printMatrix (carga matrizObjetivo[PosY][PosX]) {
+     // Imprime la matriz Objetivo
+    printf( "Matriz:\n");
+    for (int i = 0; i < PosY; i++) {
+        for (int j = 0; j < PosX; j++) {
+            if (matrizObjetivo[i][j].color == 'A'){
+                printf(ANSI_COLOR_BLUE    "Caja A   " ANSI_COLOR_RESET );
+            }
+            else if(matrizObjetivo[i][j].color == 'R'){
+                printf(ANSI_COLOR_RED     "Caja R   "  ANSI_COLOR_RESET ); 
+            }
+            else if(matrizObjetivo[i][j].color == 'O'){
+                printf(ANSI_COLOR_YELLOW     "Vacío    "  ANSI_COLOR_RESET );
+            }
+            else{
+                printf(ANSI_COLOR_GREEN   "Caja V   " ANSI_COLOR_RESET );
+            }
+            
+        }
+        printf("\n");
+    }
+    if (auxOc == true){
+        printf("Espacio Auxiliar: Caja %c \n", aux.color);
+    }
+}
+
+
+
+//FUNCIÓN COMPARACIÓN DE MATRIZ
+carga compMatrix(carga matrizActual[PosY][PosX], carga matrizObjetivo[PosY][PosX]){
+    for (int i = 0; i < PosY; i++) {
+        for (int j = 0; j < PosX; j++) {
+            if (matrizActual[i][j].color != matrizObjetivo[i][j].color){
+                if (matrizActual[i][j].color == 'O'){
+                    empty = true;
+                }
+                else{
+                    empty = false;
+                }
+                corX = j;
+                corY = i;
+                return matrizActual[i][j];
+            }
+        }
+    } 
+    finalize();
+}
+
+
+//FUNCION DE BUSQUEDA EN MATRIZ OBJETIVO
+carga searchMatrixOb(carga matrizObjetivo[PosY][PosX], char color){
+    for (int i = 0; i < PosY; i++) {
+        for (int j = 0; j < PosX; j++) {
+            if (matrizObjetivo[i][j].color == color){
+                if (matrizActual[i][j].color != matrizObjetivo[i][j].color){
+                    corX = j;
+                    corY = i;
+                    return matrizObjetivo[i][j];
+                }
+                
+            }
+        }
+    } 
+}
+
+
+//FUNCION DE BUSQUEDA EN MATRIZ Actual
+carga searchMatrixAc(carga matrizActual[PosY][PosX], char color){
+    for (int i = 0; i < PosY; i++) {
+        for (int j = 0; j < PosX; j++) {
+            if (matrizActual[i][j].color == color){
+                if (matrizActual[i][j].color != matrizObjetivo[i][j].color){
+                    corX = j;
+                    corY = i;
+                    return matrizActual[i][j];
+                }
+                
+            }
+        }
+    } 
+}
+
+
+//FUNCIÓN MODO REACOMODAR MATRIZ
+void reacomodarMatriz(carga matrizObjetivo[PosY][PosX]) {
+    // Aquí puedes implementar la lógica para reacomodar la matriz según tus requisitos.
+    printf("Modo de reacomodo seleccionado.\n");
+    printf("Leyendo Area de Trabajo........\n");
+    printf("...............................\n");
+    printf("...............................\n");
+    
+    
+ 
+     // ena la matriz con objetos con posiciones y colores aleatoriosLl
+    for (int i = 0; i < PosY; i++) {
+        for (int j = 0; j < PosX; j++) {
+            matrizActual[i][j].x = j;
+            matrizActual[i][j].y = i;
+            int randomNum = rand() % 4;
+            if (randomNum == 0) {
+                matrizActual[i][j].color = 'A';
+                azules = azules + 1;
+            } 
+            else if (randomNum == 1) {
+                matrizActual[i][j].color = 'R';
+                rojos = rojos + 1;
+            } 
+            else if (randomNum == 2){
+                matrizActual[i][j].color = 'O';
+            }
+            else {
+                matrizActual[i][j].color = 'V';
+                verdes = verdes + 1;
+            }
+        }
+    
+    }
+    printf("El valor de miVariable azules es: %d\n", azules);
+    printf("El valor de miVariable rojos es: %d\n", rojos);
+    printf("El valor de miVariable verdes es: %d\n", verdes);
+    
+    //IMPRIME LA MATRIZ
+    printMatrix(matrizActual);
+    
+    //SE GENERA LA MATRIZ OBJETIVO BETA
+    genMatrix();
+    printf("Matriz Objetivo:\n");
+    printMatrix(matrizObjetivo);
+   
+   
+    printf("Iniciando proceso de reacomodo \n");
+    waitEnter();
+    //ALGORITMO DE REACOMODO
+    carga cargaActual;
+    while (finalized == false){
+        if (auxOc == false){
+            cargaActual = compMatrix(matrizActual, matrizObjetivo);
+            printf("CorX: %d", corX);
+            printf("CorY: %d", corY);
+            printf("Color: %c", cargaActual.color);
+        }
+        else if(auxOc == true){
+            cargaActual = aux; 
+            auxOc = false;
+        }
+        
+        
+        if (empty == false){
+            
+            waitEnter();
+            
+            searchMatrixOb(matrizObjetivo, cargaActual.color);
+            printf("CorX: %d", corX);
+            printf("CorY: %d", corY);
+            printf("Color: %c", cargaActual.color);
+
+            if (matrizActual[corY][corX].color != 'O'){
+                
+                //SE MUEVE A (matrizActual[corY][corX].x,matrizActual[corY][corX].y) agarra el bloque y lo deja en la zona auxiliar
+                aux.color = matrizActual[corY][corX].color;
+
+                
+                auxOc = true; //notifica que hay algo en el espacio auxiliar
+                matrizActual[corY][corX].color = 'O'; //SE COLOCA LA CASILLA DE DONDE SE ESTÁ AGARRANDO EN "VACIÓ"
+                waitEnter();
+            }
+            matrizActual[cargaActual.y][cargaActual.x].color = 'O'; //SE COLOCA LA CASILLA DE DONDE SE ESTÁ AGARRANDO EN "VACIÓ"
+                
+                //SE MUEVE A (CARGAACTUAL.X, CARGAACTUAL.Y), AGARRA LA CAJA Y LA DEJA EN (COR X, COR Y)
+                printf("Color: %c", matrizActual[corY][corX].color);
+                matrizActual[corY][corX].color = cargaActual.color;
+                printf("Color: %c", matrizActual[corY][corX].color);
+            
+            
+        }
+        else{
+            searchMatrixAc(matrizActual, matrizObjetivo[corY][corX].color);
+            
+            //VA A LAS COORDENADAS (CORX,CORY) Y TRAE EL BLOQUE  
+            matrizActual[cargaActual.y][cargaActual.x].color = matrizActual[corY][corX].color;
+            matrizActual[corY][corX].color = 'O';
+            
+        }
+        printMatrix(matrizActual);
+        waitEnter();
+    }
+    printf("\nReacomodo Finalizado\n");
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void distribuirSegunPatron(carga matriz[PosY][PosX]) {
+    
+    printf("Modo de distribución según patrón seleccionado.\n");
+}
+
+int main() {
+    
+    
+    //se establecen coordenadas para aux
+    aux.x = 10;
+    aux.y = 10;
+    
+    
+    
+    srand(time(NULL));
+    
+    int opcion;
+
+
+    printf("Ejecutando modo de prueba.........................\n");
+    printf("--------------------------------------------------\n");
+
+    printf("Selecciona una opción:\n");
+    printf("1. Modo de reacomodo\n");
+    printf("2. Modo de distribución según patrón\n");
+    printf("Opción: ");
+    scanf("%d", &opcion);
+
+    // Lógica de selección de modo
+    if (opcion == 1) {
+        reacomodarMatriz(matrizObjetivo);
+    } else if (opcion == 2) {
+        distribuirSegunPatron(matrizObjetivo);
+    } else {
+        printf("Opción no válida.\n");
+    }
+
+    return 0;
+}
